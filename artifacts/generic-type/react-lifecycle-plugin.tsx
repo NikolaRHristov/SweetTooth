@@ -1,5 +1,5 @@
-import type { Plugin, Reactive, SystemContext, ReactiveConfig } from './types';
-import { createReactiveHookFactory } from './hook-factory';
+import type { Plugin, Reactive, SystemContext, ReactiveConfig } from './../sweet-tooth/v2/factory';
+import { createReactiveHookFactory } from './v1/factory';
 
 interface ReactiveComponent<T = any> {
   id: string;
