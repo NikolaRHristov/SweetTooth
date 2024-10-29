@@ -1,14 +1,37 @@
 {
-  "name": "sweettooth",
-  "version": "0.0.1",
-  "description": "SweetTooth",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Source/Open <Source/Open@PlayForm.Cloud> (https://playform.cloud/)",
-  "license": "SEE LICENSE IN LICENSE",
-  "devDependencies": {
-    "@playform/build": "workspace:0.1.8"
-  }
+	"name": "sweettooth",
+	"version": "0.0.1",
+	"private": false,
+	"description": "🦷 SweetTooth —",
+	"keywords": [
+		"sweettooth",
+		"component",
+		"component-factory"
+	],
+	"homepage": "HTTPS://GitHub.Com/NikolaRHristov/SweetTooth#readme",
+	"bugs": {
+		"url": "HTTPS://GitHub.Com/NikolaRHristov/SweetTooth/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/NikolaRHristov/SweetTooth.git"
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"author": {
+		"name": "🖋️ Source — 👐🏻 Open —",
+		"email": "Source/Open@PlayForm.Cloud",
+		"url": "HTTPS://PlayForm.Cloud"
+	},
+	"type": "module",
+	"scripts": {
+		"Run": "Build 'Source/**/*.ts' --Watch",
+		"prepublishOnly": "Build 'Source/**/*.ts'"
+	},
+	"devDependencies": {
+		"@playform/build": "0.1.8"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }
