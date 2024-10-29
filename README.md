@@ -5,3 +5,5 @@ possibly want.
 
 (GenericType) = (HookFactory + Life-Cycle Inference) (SweetTooth) =
 (ComponentFactory + Type Inference) = (SweetTooth \* GenericType)
+
+All in all both provide type inference.
