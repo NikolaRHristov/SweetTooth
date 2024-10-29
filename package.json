@@ -1,0 +1,11 @@
+{
+  "name": "sweettooth",
+  "version": "0.0.1",
+  "description": "SweetTooth",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Source/Open <Source/Open@PlayForm.Cloud> (https://playform.cloud/)",
+  "license": "SEE LICENSE IN LICENSE"
+}

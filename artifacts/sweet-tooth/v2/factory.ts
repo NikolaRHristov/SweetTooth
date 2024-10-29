@@ -1,3 +1,5 @@
+import type { ReactiveConfig, SystemContext } from "../../../v2";
+
 // Core types and interfaces
 export type Primitive = string | number | boolean | null | undefined;
 export type JSONValue = Primitive | JSONObject | JSONArray;

@@ -9,14 +9,21 @@ export interface JSONArray extends Array<JSONValue> {}
 // Plugin System
 export interface Plugin<T = any> {
 	name: string;
+
 	initialize?: (context: SystemContext) => void;
+
 	beforeCreate?: (
 		config: ReactiveConfig<T>,
 	) => ReactiveConfig<T> | Promise<ReactiveConfig<T>>;
+
 	afterCreate?: (reactive: Reactive<T>) => void | Promise<void>;
+
 	beforeUpdate?: (value: T, newValue: T) => T | Promise<T>;
+
 	afterUpdate?: (value: T) => void | Promise<void>;
+
 	beforeDestroy?: (reactive: Reactive<T>) => void | Promise<void>;
+
 	handleError?: (
 		error: Error,
 		context: { phase: string; config: ReactiveConfig<T> },
@@ -26,76 +33,116 @@ export interface Plugin<T = any> {
 // Enhanced Reactive System
 export interface Reactive<T> {
 	id: string;
+
 	value: () => T;
+
 	set?: (newValue: T) => Promise<void>;
+
 	meta: ReactiveMetadata;
+
 	dependencies: Set<string>;
+
 	dependents: Set<string>;
 }
 
 export interface ReactiveMetadata {
 	type: string;
+
 	created: Date;
+
 	lastUpdated?: Date;
+
 	updateCount: number;
+
 	status: "idle" | "loading" | "error" | "success";
+
 	error?: Error;
+
 	custom: Record<string, any>;
 }
 
 // Configuration Types
 export interface SystemConfig {
 	plugins?: Plugin[];
+
 	middleware?: Middleware[];
+
 	options?: {
 		enableHistory?: boolean;
+
 		historySize?: number;
+
 		asyncTimeout?: number;
+
 		batchUpdates?: boolean;
+
 		devTools?: boolean;
 	};
 }
 
 export interface ReactiveConfig<T> {
 	id?: string;
+
 	type: string;
+
 	initialValue: T;
+
 	dependencies?: string[];
 }
 
 export interface Middleware {
 	name: string;
+
 	before?: (value: any, context: MiddlewareContext) => any | Promise<any>;
+
 	after?: (value: any, context: MiddlewareContext) => any | Promise<any>;
+
 	error?: (error: Error, context: MiddlewareContext) => void | Promise<void>;
 }
 
 export interface MiddlewareContext {
 	reactive: Reactive<any>;
+
 	phase: "before" | "after" | "error";
+
 	timestamp: number;
+
 	meta: Record<string, any>;
 }
 
 export interface SystemContext {
 	reactives: Map<string, Reactive<any>>;
+
 	history: Map<string, any[]>;
+
 	options: Required<SystemConfig["options"]>;
+
 	registerReactive: (reactive: Reactive<any>) => void;
+
 	removeReactive: (id: string) => void;
+
 	getReactive: (id: string) => Reactive<any> | undefined;
+
 	batch: (operations: (() => Promise<void>)[]) => Promise<void>;
+
 	subscribe: (id: string, callback: (value: any) => void) => () => void;
+
 	unsubscribe: (id: string) => void;
 }
 // Enhanced Component Factory
 export class ComponentSystem {
 	private reactives: Map<string, Reactive<any>> = new Map();
+
 	private plugins: Map<string, Plugin> = new Map();
+
 	private middleware: Middleware[] = [];
+
 	private history: Map<string, any[]> = new Map();
+
 	private batchQueue: Map<string, any> = new Map();
+
 	private subscriptions: Map<string, Set<(value: any) => void>> = new Map();
+
 	private options: Required<SystemConfig["options"]>;
 
 	constructor(config: SystemConfig = {}) {
@@ -109,6 +156,7 @@ export class ComponentSystem {
 		};
 
 		this.initializePlugins(config.plugins || []);
+
 		this.middleware = config.middleware || [];
 
 		if (this.options.devTools) {
@@ -119,6 +167,7 @@ export class ComponentSystem {
 	private initializePlugins(plugins: Plugin[]) {
 		plugins.forEach((plugin) => {
 			this.plugins.set(plugin.name, plugin);
+
 			plugin.initialize?.(this.createSystemContext());
 		});
 	}
@@ -142,8 +191,11 @@ export class ComponentSystem {
 			"beforeCreate",
 			config,
 		);
+
 		const reactive = await this.createReactive(processedConfig);
+
 		await this.runPluginHook("afterCreate", reactive);
+
 		return reactive;
 	}
 
@@ -172,7 +224,9 @@ export class ComponentSystem {
 						newValue,
 						{ reactive },
 					);
+
 					await this.updateReactiveValue(reactive, processedValue);
+
 					await this.runMiddleware("after", reactive.value(), {
 						reactive,
 					});
@@ -186,6 +240,7 @@ export class ComponentSystem {
 		}
 
 		this.registerReactive(reactive);
+
 		return reactive;
 	}
 
@@ -195,10 +250,12 @@ export class ComponentSystem {
 	): Promise<void> {
 		if (this.options.batchUpdates && this.batchQueue.size > 0) {
 			this.batchQueue.set(reactive.id, newValue);
+
 			return;
 		}
 
 		const oldValue = reactive.value();
+
 		const processedValue = await this.runPluginHook(
 			"beforeUpdate",
 			newValue,
@@ -207,8 +264,11 @@ export class ComponentSystem {
 
 		// Update the reactive
 		const valueRef = { current: processedValue };
+
 		reactive.value = () => valueRef.current;
+
 		reactive.meta.lastUpdated = new Date();
+
 		reactive.meta.updateCount++;
 
 		// Handle history
@@ -227,7 +287,9 @@ export class ComponentSystem {
 			Promise.all(operations.map((op) => op()))
 				.then(() => {
 					const updates = Array.from(this.batchQueue.entries());
+
 					this.batchQueue.clear();
+
 					return Promise.all(
 						updates.map(([id, value]) =>
 							this.getReactive(id)?.set?.(value),
@@ -242,13 +304,16 @@ export class ComponentSystem {
 	// Advanced Reactive Graph Management
 	private async notifyDependents(reactive: Reactive<any>): Promise<void> {
 		const visited = new Set<string>();
+
 		const queue = Array.from(reactive.dependents);
 
 		while (queue.length > 0) {
 			const dependentId = queue.shift()!;
+
 			if (visited.has(dependentId)) continue;
 
 			visited.add(dependentId);
+
 			const dependent = this.getReactive(dependentId);
 
 			if (dependent?.set) {
@@ -269,6 +334,7 @@ export class ComponentSystem {
 
 		for (const plugin of this.plugins.values()) {
 			const hookFn = plugin[hook] as (...args: any[]) => R | Promise<R>;
+
 			if (hookFn) {
 				result = await hookFn.call(plugin, result, ...args);
 			}
@@ -283,11 +349,13 @@ export class ComponentSystem {
 		context: Omit<MiddlewareContext, "phase" | "timestamp">,
 	): Promise<any> {
 		let result = value;
+
 		const timestamp = Date.now();
 
 		for (const middleware of this.middleware) {
 			const handler =
 				phase === "before" ? middleware.before : middleware.after;
+
 			if (handler) {
 				result = await handler(result, {
 					...context,
@@ -306,6 +374,7 @@ export class ComponentSystem {
 		context: { reactive: Reactive<any>; phase: string },
 	) {
 		context.reactive.meta.status = "error";
+
 		context.reactive.meta.error = error;
 
 		// Plugin error handling
@@ -336,6 +405,7 @@ export class ComponentSystem {
 		}
 
 		const history = this.history.get(reactiveId)!;
+
 		history.push(value);
 
 		if (history.length > this.options.historySize) {
@@ -354,7 +424,9 @@ export class ComponentSystem {
 			}),
 			subscribe: (callback: (state: any) => void) => {
 				const handler = () => callback(devTools.getState());
+
 				this.subscriptions.set("devtools", new Set([handler]));
+
 				return () =>
 					this.subscriptions.get("devtools")?.delete(handler);
 			},
@@ -374,10 +446,14 @@ export class ComponentSystem {
 
 	private removeReactive(id: string) {
 		const reactive = this.reactives.get(id);
+
 		if (reactive) {
 			this.runPluginHook("beforeDestroy", reactive);
+
 			this.reactives.delete(id);
+
 			this.history.delete(id);
+
 			this.subscriptions.delete(id);
 		}
 	}
@@ -387,6 +463,7 @@ export class ComponentSystem {
 			this.subscriptions.set(id, new Set());
 		}
 		this.subscriptions.get(id)!.add(callback);
+
 		return () => this.subscriptions.get(id)?.delete(callback);
 	}
 
@@ -403,6 +480,7 @@ export const LoggerPlugin: Plugin = {
 	},
 	beforeCreate: (config) => {
 		console.log("Creating reactive:", config);
+
 		return config;
 	},
 	afterCreate: (reactive) => {
@@ -413,13 +491,22 @@ export const LoggerPlugin: Plugin = {
 	},
 };
 
+declare global {
+	interface Window {
+		__COMPONENT_DEVTOOLS__: any;
+		componentSystem: ComponentSystem;
+	}
+}
+
 export const PersistencePlugin: Plugin = {
 	name: "persistence",
 	initialize: (context) => {
 		// Load persisted state
 		const stored = localStorage.getItem("reactives");
+
 		if (stored) {
 			const state = JSON.parse(stored);
+
 			Object.entries(state).forEach(([id, value]) => {
 				context.registerReactive({
 					id,
@@ -440,7 +527,7 @@ export const PersistencePlugin: Plugin = {
 	afterUpdate: (value) => {
 		// Persist updated state
 		const state = Array.from(
-			window.componentSystem.reactives.entries(),
+			(window as Window).componentSystem.reactives.entries(),
 		).reduce(
 			(acc, [id, reactive]) => ({
 				...acc,
@@ -448,11 +535,11 @@ export const PersistencePlugin: Plugin = {
 			}),
 			{},
 		);
+
 		localStorage.setItem("reactives", JSON.stringify(state));
 	},
 };
 
-// Example Usage
 const system = new ComponentSystem({
 	plugins: [LoggerPlugin, PersistencePlugin],
 	middleware: [
@@ -460,6 +547,7 @@ const system = new ComponentSystem({
 			name: "validation",
 			before: (value, context) => {
 				if (value === null) throw new Error("Value cannot be null");
+
 				return value;
 			},
 		},
