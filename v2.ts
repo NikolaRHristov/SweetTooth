@@ -432,7 +432,7 @@ export class ComponentSystem {
 			},
 		};
 
-		(window as any).__COMPONENT_DEVTOOLS__ = devTools;
+		window.__COMPONENT_DEVTOOLS__ = devTools;
 	}
 
 	// Utility Methods
@@ -527,7 +527,7 @@ export const PersistencePlugin: Plugin = {
 	afterUpdate: (value) => {
 		// Persist updated state
 		const state = Array.from(
-			(window as Window).componentSystem.reactives.entries(),
+			window.componentSystem.reactives.entries(),
 		).reduce(
 			(acc, [id, reactive]) => ({
 				...acc,

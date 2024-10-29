@@ -7,5 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Source/Open <Source/Open@PlayForm.Cloud> (https://playform.cloud/)",
-  "license": "SEE LICENSE IN LICENSE"
+  "license": "SEE LICENSE IN LICENSE",
+  "devDependencies": {
+    "@playform/build": "workspace:0.1.8"
+  }
 }
