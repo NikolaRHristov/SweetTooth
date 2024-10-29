@@ -10,14 +10,23 @@ import {
 // Enhanced type definitions
 export type BaseConfig<T> = {
 	initialValue?: T;
+
 	getter?: (value: T) => any;
+
 	setter?: (value: T, newValue: any) => T;
+
 	dependencies?: (string | (() => any))[];
+
 	dispose?: () => void;
+
 	middleware?: Array<(next: (value: T) => any) => (value: T) => any>;
+
 	validate?: (value: T) => boolean | Promise<boolean>;
+
 	transform?: (value: T) => any;
+
 	onError?: (error: any) => void;
+
 	onSuccess?: (value: T) => void;
 };
 
@@ -27,32 +36,41 @@ export type ReactiveConfig<T> =
 	  })
 	| {
 			type: "memo";
+
 			compute: (deps: any) => T;
 	  }
 	| {
 			type: "resource";
+
 			fetcher: (
 				source: any,
 				{ value, refetching }: any,
 			) => T | Promise<T>;
+
 			source?: any;
+
 			cacheStrategy?: "memory" | "session" | "local";
+
 			refetchInterval?: number;
 	  }
 	| {
 			type: "effect";
+
 			effect: (deps: any) => void | (() => void);
 	  }
 	| {
 			type: "custom";
+
 			customLogic: (context: ComponentContext<any>) => any;
 	  }
 	| {
 			type: "nested";
+
 			nestedConfig: ComponentFactory;
 	  }
 	| {
 			type: "computed";
+
 			computed: (context: ComponentContext<any>) => T;
 	  };
 
@@ -62,23 +80,33 @@ export type ComponentFactory = {
 
 export type ComponentContext<T extends ComponentFactory> = {
 	getters: { [K in keyof T]: () => any };
+
 	setters: { [K in keyof T]: (newValue: any) => void };
+
 	reactives: { [K in keyof T]: any };
+
 	addReactive: <K extends string>(
 		key: K,
 		config: ReactiveConfig<any>,
 	) => void;
+
 	removeReactive: (key: keyof T) => void;
+
 	reset: () => void;
+
 	subscribe: (key: keyof T, callback: (value: any) => void) => () => void;
 };
 
 export function createComponentFactory<T extends ComponentFactory>(config: T) {
 	return createRoot((dispose) => {
 		const reactives: { [K in keyof T]?: any } = {};
+
 		const getters: { [K in keyof T]?: () => any } = {};
+
 		const setters: { [K in keyof T]?: (newValue: any) => void } = {};
+
 		const subscribers = new Map<keyof T, Set<(value: any) => void>>();
+
 		const cache = new Map<string, any>();
 
 		function applyMiddleware(
@@ -88,10 +116,12 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 			>,
 		) {
 			if (!middleware?.length) return value;
+
 			const pipeline = middleware.reduce(
 				(next, middleware) => middleware(next),
 				(value: any) => value,
 			);
+
 			return pipeline(value);
 		}
 
@@ -100,6 +130,7 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 			validate?: (value: any) => boolean | Promise<boolean>,
 		) {
 			if (!validate) return true;
+
 			try {
 				return await validate(value);
 			} catch (error) {
@@ -122,10 +153,12 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 					const [value, setValue] = createSignal(
 						baseConfig.initialValue,
 					);
+
 					reactives[key] = [value, setValue];
 
 					getters[key] = () => {
 						const rawValue = value();
+
 						return applyMiddleware(
 							baseConfig.getter
 								? baseConfig.getter(rawValue)
@@ -139,6 +172,7 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 							const transformedValue = baseConfig.transform
 								? baseConfig.transform(newValue)
 								: newValue;
+
 							const isValid = await validateValue(
 								transformedValue,
 								baseConfig.validate,
@@ -153,7 +187,9 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 											)
 										: transformedValue,
 								);
+
 								baseConfig.onSuccess?.(transformedValue);
+
 								notifySubscribers(key, transformedValue);
 							} else {
 								baseConfig.onError?.(
@@ -164,6 +200,7 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 							baseConfig.onError?.(error);
 						}
 					};
+
 					break;
 				}
 
@@ -173,6 +210,7 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 						async (...args) => {
 							try {
 								const cacheKey = JSON.stringify(args);
+
 								if (conf.cacheStrategy && cache.has(cacheKey)) {
 									return cache.get(cacheKey);
 								}
@@ -184,9 +222,11 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 								}
 
 								baseConfig.onSuccess?.(result);
+
 								return result;
 							} catch (error) {
 								baseConfig.onError?.(error);
+
 								throw error;
 							}
 						},
@@ -197,11 +237,14 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 							() => resource.refetch(),
 							conf.refetchInterval,
 						);
+
 						onCleanup(() => clearInterval(interval));
 					}
 
 					reactives[key] = resource;
+
 					getters[key] = () => resource();
+
 					break;
 				}
 
@@ -213,14 +256,19 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 								setters,
 								reactives,
 							});
+
 							baseConfig.onSuccess?.(result);
+
 							return result;
 						} catch (error) {
 							baseConfig.onError?.(error);
+
 							throw error;
 						}
 					});
+
 					getters[key] = () => reactives[key]();
+
 					break;
 				}
 
@@ -255,13 +303,17 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 				createReactive(config, key as unknown as keyof T),
 			removeReactive: (key) => {
 				delete reactives[key];
+
 				delete getters[key];
+
 				delete setters[key];
+
 				subscribers.delete(key);
 			},
 			reset: () => {
 				Object.keys(config).forEach((key) => {
 					const conf = config[key as keyof T];
+
 					if (conf.type === "signal") {
 						setters[key as keyof T]?.(conf.initialValue);
 					}
@@ -272,13 +324,16 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 					subscribers.set(key, new Set());
 				}
 				subscribers.get(key)!.add(callback);
+
 				return () => subscribers.get(key)!.delete(callback);
 			},
 		};
 
 		onCleanup(() => {
 			subscribers.clear();
+
 			cache.clear();
+
 			Object.values(config).forEach((conf) => conf.dispose?.());
 		});
 
