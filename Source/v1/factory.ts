@@ -433,6 +433,7 @@ export class ComponentSystem {
 		if (!this.subscriptions.has(id)) {
 			this.subscriptions.set(id, new Set());
 		}
+
 		this.subscriptions.get(id)!.add(callback);
 
 		return () => this.subscriptions.get(id)?.delete(callback);

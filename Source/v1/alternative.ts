@@ -323,6 +323,7 @@ export function createComponentFactory<T extends ComponentFactory>(config: T) {
 				if (!subscribers.has(key)) {
 					subscribers.set(key, new Set());
 				}
+
 				subscribers.get(key)!.add(callback);
 
 				return () => subscribers.get(key)!.delete(callback);
