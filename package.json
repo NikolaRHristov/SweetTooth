@@ -31,7 +31,7 @@
 		"solid-js": "1.9.6"
 	},
 	"devDependencies": {
-		"@playform/build": "0.2.3"
+		"@playform/build": "0.2.4"
 	},
 	"publishConfig": {
 		"access": "public",
