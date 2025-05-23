@@ -8,9 +8,9 @@
 		"component",
 		"component-factory"
 	],
-	"homepage": "HTTPS://GitHub.Com/NikolaRHristov/SweetTooth#readme",
+	"homepage": "https://GitHub.Com/NikolaRHristov/SweetTooth#readme",
 	"bugs": {
-		"url": "HTTPS://GitHub.Com/NikolaRHristov/SweetTooth/issues"
+		"url": "https://GitHub.Com/NikolaRHristov/SweetTooth/issues"
 	},
 	"repository": {
 		"type": "git",
@@ -20,7 +20,7 @@
 	"author": {
 		"name": "Source ✍🏻 Open 👐🏻",
 		"email": "Source/Open@PlayForm.Cloud",
-		"url": "HTTPS://PlayForm.Cloud"
+		"url": "https://PlayForm.Cloud"
 	},
 	"type": "module",
 	"scripts": {
