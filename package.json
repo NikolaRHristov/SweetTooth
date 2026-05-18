@@ -28,7 +28,7 @@
 		"prepublishOnly": "Build 'Source/**/*.ts'"
 	},
 	"dependencies": {
-		"solid-js": "1.9.12"
+		"solid-js": "1.9.13"
 	},
 	"devDependencies": {
 		"@playform/build": "0.3.0"
